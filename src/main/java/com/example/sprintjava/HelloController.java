@@ -589,7 +589,6 @@ public class HelloController implements Serializable{
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("logAccount.ser"))) {
             out.writeObject(cliente);
             System.out.println("Lista de produtos salva com sucesso.");
-            System.out.println(cliente.getSenha() + " " + cliente.getEmail());
         } catch (IOException e) {
             e.printStackTrace();
         }
