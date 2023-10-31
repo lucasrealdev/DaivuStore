@@ -107,8 +107,8 @@ O commit semântico possui os elementos estruturais abaixo (tipos), que informam
 ## implementations to be made
 
 &#x2610; Login With Google Functionality<br>
-&#x2610; Forgot Password Functionality<br>
-&#x2610; Update User GUI Functionality<br>
+&#9745; Forgot Password Functionality<br>
+&#x2610; Update User Functionality<br>
 &#x2610; Change cart to BD for each Client<br>
 &#x2610; Account Configuration Functionality<br>
 &#x2610; Implement purchasing system<br>
