@@ -18,9 +18,7 @@ public class EmailSender {
 
     public void sendEmailAsync(String to, ImageView loading) {
         this.loading = loading;
-        Runnable emailTask = () -> {
-            sendEmail(to);
-        };
+        Runnable emailTask = () -> sendEmail(to);
 
         Thread thread = new Thread(emailTask);
         thread.start();
@@ -58,11 +56,11 @@ public class EmailSender {
 
             String sql = "SELECT id FROM clientes WHERE email = ?";
             Long id = Long.valueOf(clienteDAO.destinoCodigo(to,sql,"id"));
-            Cliente cliente = new Cliente();
+            Cliente cliente = clienteDAO.get(id);
             cliente.setCode(String.valueOf(code));
             cliente.setId(id);
 
-            clienteDAO.updateCodigo(cliente);
+            clienteDAO.update(cliente, null);
 
             Message message = new MimeMessage(session);
 

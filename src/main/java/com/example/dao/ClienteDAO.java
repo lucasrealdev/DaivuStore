@@ -8,7 +8,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.mindrot.jbcrypt.BCrypt;
 
 public class ClienteDAO implements DAO<Cliente> {
 
@@ -57,19 +56,6 @@ public class ClienteDAO implements DAO<Cliente> {
             statement.setString(4, cliente.getCode());
             statement.setInt(5, cliente.isAdm());
             statement.setLong(6, cliente.getId());
-            return statement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public boolean updateCodigo(Cliente cliente) {
-        String sql = "UPDATE clientes SET codigo = ? WHERE id = ?";
-        try (Connection connection = ConnectionDb.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, cliente.getCode());
-            statement.setLong(2, cliente.getId());
             return statement.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
