@@ -113,4 +113,3 @@ O commit semântico possui os elementos estruturais abaixo (tipos), que informam
 &#x2610; Account Configuration Functionality<br>
 &#x2610; Implement purchasing system<br>
 &#x2610; improve security<br>
-&#x2610; Optimize the code
