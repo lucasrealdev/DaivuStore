@@ -396,7 +396,7 @@ public class MainAdmController {
             alterButton.setOnMouseClicked(e -> alterClicked(produto));
 
             Button deleteButton = createButton(431, 30, "Delete", "buttonSign");
-            deleteButton.setStyle("-fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #AE2626 0%, rgba(241,24,24, 0.93) 100%);");
+            deleteButton.setStyle("-fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #AE2626 0%, rgba(241,24,24, 0.93) 100%); -fx-font: bold 16px sans-serif;");
             deleteButton.setOnMouseClicked(event -> deleteProduct(produto));
 
             loadProductImageAsync(produto.getLinkImagem(), card);
