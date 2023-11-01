@@ -181,7 +181,7 @@
                   <Font size="13.0" />
                </font>
             </Label>
-            <TextField fx:id="password" layoutX="75.0" layoutY="108.0" prefHeight="25.0" prefWidth="149.0" promptText="Password" />
+            <TextField fx:id="password" layoutX="75.0" layoutY="108.0" prefHeight="25.0" prefWidth="149.0" promptText="Password"/>
             <Button layoutX="75.0" layoutY="181.0" mnemonicParsing="false" onMouseClicked="#confirm_password" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: #008eff;" styleClass="buttonSign" stylesheets="@main.css" text="Confirm" textFill="WHITE">
                <font>
                   <Font name="Arial Bold" size="14.0" />

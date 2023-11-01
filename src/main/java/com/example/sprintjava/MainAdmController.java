@@ -9,6 +9,7 @@ import com.example.entity.Produto;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -250,21 +251,20 @@ public class MainAdmController {
         if (containerC != null) {
             AnchorPane anchorPane = createAnchorPane(812, 84);
 
-            Label nomeCliente = createLabel(cliente.getNomeDeUsuario(), 102, 9, "bold 15.5px sans-serif");
+            TextField nomeCliente = createTextField(cliente.getNomeDeUsuario(), 90, 9, "bold 15.5px sans-serif");
 
-            Label emailCliente = createLabel(cliente.getEmail(), 102, 34, "normal 15.5px sans-serif");
+            TextField emailCliente = createTextField(cliente.getEmail(), 92, 32, "normal 15.5px sans-serif");
 
             Label idCliente = createLabel("N° " + cliente.getId(), 102, 58, "normal 15.5px sans-serif");
+
 
             String string = (cliente.isAdm() == 0) ? "user" : "admin";
             Label eAdmin = createLabel(string, 357, 30, "bold 15.5px sans-serif");
 
             Button buttonAlter = createButton(650, 23, "Alter", "buttonSign");
-            buttonAlter.setOnMouseClicked(e -> alterClient());
 
             Button buttonDelete = createButton(485, 24, "Delete", "buttonSign");
-            buttonDelete.setStyle("-fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #AE2626 0%, rgba(241,24,24, 0.93) 100%);");
-            buttonDelete.setOnMouseClicked(event -> deleteCliente(cliente));
+            buttonDelete.setStyle("-fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #AE2626 0%, rgba(241,24,24, 0.93) 100%); -fx-font: bold 16px sans-serif;");
 
             ImageView imgChave = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/imgs/chave.png"))));
             imgChave.setLayoutX(313);
@@ -273,6 +273,9 @@ public class MainAdmController {
             ImageView imgPerfil = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/imgs/people2.png"))));
             imgPerfil.setLayoutX(13);
             imgPerfil.setLayoutY(6);
+
+            buttonAlter.setOnMouseClicked(e -> alterClient(emailCliente, nomeCliente, buttonAlter, buttonDelete, cliente.getId()));
+            buttonDelete.setOnMouseClicked(event -> deleteCliente(cliente, emailCliente, nomeCliente, buttonDelete, buttonAlter));
 
             anchorPane.setOnMouseEntered(event -> {
                 anchorPane.setStyle("-fx-border-radius: 8px; -fx-background-radius: 8px; -fx-background-color: #b9babd");
@@ -285,10 +288,71 @@ public class MainAdmController {
             containerC.getChildren().add(anchorPane);
         }
     }
+    private String originEmail;
+    private String originName;
+    private void alterClient(TextField emailCliente, TextField nomeCliente, Button confirm, Button cancel, Long id){
+        if (confirm.getText().equalsIgnoreCase("Confirm")){
+            Cliente cliente = clienteDAO.get(id);
+            cliente.setId(id);
+            confirm.setText("Alter");
+            cancel.setText("Delete");
+            nomeCliente.setEditable(false);
+            emailCliente.setEditable(false);
+            nomeCliente.setStyle(nomeCliente.getStyle().replace("blue", "black"));
+            emailCliente.setStyle(emailCliente.getStyle().replace("blue", "black"));
 
-    private void alterClient(){
+            if (!isValidEmail(emailCliente.getText())) {
+                showNotification("Email inválido. Digite um email válido.", false);
+                emailCliente.setText(originEmail);
+                nomeCliente.setText(originName);
+                return;
+            }
 
+            if (nomeCliente.getText().length() <= 7){
+                showNotification("Seu nome de usuário deve ter pelo menos 8 caracteres.", false);
+                emailCliente.setText(originEmail);
+                nomeCliente.setText(originName);
+                return;
+            }
+
+            if (!nomeCliente.getText().equals(originName) || !emailCliente.getText().equals(originEmail)) {
+                if (clienteDAO.verificarNomeDeUsuarioExistente(nomeCliente.getText())) {
+                    emailCliente.setText(originEmail);
+                    nomeCliente.setText(originName);
+                    showNotification("Nome já está em uso!", false);
+                    return;
+                }
+
+                if (clienteDAO.verificarEmailExistente(emailCliente.getText())) {
+                    emailCliente.setText(originEmail);
+                    nomeCliente.setText(originName);
+                    showNotification("Email já está em uso!", false);
+                    return;
+                }
+
+                cliente.setNomeDeUsuario(nomeCliente.getText());
+                cliente.setEmail(emailCliente.getText());
+
+                if (clienteDAO.update(cliente, null)) {
+                    showNotification("Cliente atualizado!", true);
+                } else {
+                    showNotification("Não foi possível atualizar!", false);
+                    emailCliente.setText(originEmail);
+                    nomeCliente.setText(originName);
+                }
+            }
+        } else {
+            originEmail = emailCliente.getText();
+            originName = nomeCliente.getText();
+            confirm.setText("Confirm");
+            cancel.setText("Cancel");
+            nomeCliente.setEditable(true);
+            emailCliente.setEditable(true);
+            nomeCliente.setStyle(nomeCliente.getStyle().replace("black", "blue"));
+            emailCliente.setStyle(emailCliente.getStyle().replace("black", "blue"));
+        }
     }
+
     @FXML
     void accountClicked() {
         Cliente clienteLogado = clienteDAO.get(Long.parseLong(IdUser.getIduser().toString()));
@@ -311,7 +375,7 @@ public class MainAdmController {
             } else {
                 System.err.println("O arquivo logAccount.ser não existe.");
             }
-        } catch (Exception e) {}
+        } catch (Exception ignore) {}
 
         navigateTo("loginScreen.fxml");
     }
@@ -360,13 +424,23 @@ public class MainAdmController {
             tfLinkP.setText(produto.getLinkImagem());
             tfMarcaP.setText(produto.getMarca());
             tfPrecoP.setText(produto.getPreco().toString());
-            tfQuantidadeP.setText(produto.getMl().toString().replace("ml", ""));
+            tfQuantidadeP.setText(produto.getMl().replace("ml", ""));
         }
     }
     private AnchorPane createAnchorPane(double width, double height) {
         AnchorPane anchorPane = new AnchorPane();
         anchorPane.setPrefSize(width, height);
         return anchorPane;
+    }
+
+    private TextField createTextField(String text, double layoutX, double layoutY, String font) {
+        TextField textField = new TextField(text);
+        textField.setLayoutX(layoutX);
+        textField.setLayoutY(layoutY);
+        textField.setEditable(false);
+        textField.setStyle("-fx-font: " + font + "; border: none; -fx-text-fill: black");
+        textField.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+        return textField;
     }
 
     private Label createLabel(String text, double layoutX, double layoutY, String font) {
@@ -389,17 +463,28 @@ public class MainAdmController {
         return button;
     }
 
-    private void deleteCliente(Cliente cliente) {
-        if (cliente.isAdm() == 1) {
-            showNotification("Você não pode excluir um administrador do sistema!", false);
-            return;
-        }
-        Alert confirmationDialog = createConfirmationDialog("Deseja Excluir?", "Você tem certeza que deseja excluir esse usuario?");
-        Optional<ButtonType> result = confirmationDialog.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            clienteDAO.delete(cliente.getId());
-            loadClientsCard();
-            showNotification("Cliente removido do sistema!", true);
+    private void deleteCliente(Cliente cliente, TextField emailCliente, TextField nomeCliente, Button cancel, Button confirm) {
+        if (cancel.getText().equalsIgnoreCase("Delete")){
+            if (cliente.isAdm() == 1) {
+                showNotification("Você não pode excluir um administrador do sistema!", false);
+                return;
+            }
+            Alert confirmationDialog = createConfirmationDialog("Deseja Excluir?", "Você tem certeza que deseja excluir esse usuario?");
+            Optional<ButtonType> result = confirmationDialog.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                clienteDAO.delete(cliente.getId());
+                loadClientsCard();
+                showNotification("Cliente removido do sistema!", true);
+            }
+        } else{
+            confirm.setText("Alter");
+            cancel.setText("Delete");
+            nomeCliente.setEditable(false);
+            emailCliente.setEditable(false);
+            nomeCliente.setText(originName);
+            emailCliente.setText(originEmail);
+            nomeCliente.setStyle(nomeCliente.getStyle().replace("blue", "black"));
+            emailCliente.setStyle(emailCliente.getStyle().replace("blue", "black"));
         }
     }
 
@@ -502,5 +587,8 @@ public class MainAdmController {
     private void setPosition(double x, double y) {
         rectangle.setLayoutX(x);
         rectangle.setLayoutY(y);
+    }
+    private boolean isValidEmail(String email) {
+        return email.matches("^[\\w.-]+@([\\w-]+\\.)+[A-Za-z]{2,4}$");
     }
 }
