@@ -316,18 +316,16 @@ public class MainAdmController {
             }
 
             if (!nomeCliente.getText().equals(originName) || !emailCliente.getText().equals(originEmail)) {
-                if (clienteDAO.verificarNomeDeUsuarioExistente(nomeCliente.getText())) {
+                if (clienteDAO.verificarNomeDeUsuarioExistente(nomeCliente.getText()) && !nomeCliente.getText().equals(originName)) {
                     emailCliente.setText(originEmail);
                     nomeCliente.setText(originName);
                     showNotification("Nome já está em uso!", false);
-                    return;
                 }
 
-                if (clienteDAO.verificarEmailExistente(emailCliente.getText())) {
+                if (clienteDAO.verificarEmailExistente(emailCliente.getText()) && !emailCliente.getText().equals(originEmail)) {
                     emailCliente.setText(originEmail);
                     nomeCliente.setText(originName);
                     showNotification("Email já está em uso!", false);
-                    return;
                 }
 
                 cliente.setNomeDeUsuario(nomeCliente.getText());
