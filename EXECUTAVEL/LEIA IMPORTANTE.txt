@@ -1,0 +1,7 @@
+LOGIN 
+
+ADMIN: testeAdmin@gmail.com | Teste01!
+USER: testeUser@gmail.com | Teste01!
+
+ABRIR SERVIDOR MYSQL DO SENAI
+
