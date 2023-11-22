@@ -36,12 +36,12 @@ public class Notifier {
         iconView.setFitHeight(50);
 
         Label label = new Label(message);
-        label.setStyle("-fx-font-size: 14px; -fx-text-fill: black");
+        label.setStyle("-fx-font-size: 14px; -fx-text-fill: white");
 
         // Crie um novo HBox para a cena temporária
         HBox tempContent = new HBox(10, iconView, label);
         tempContent.setAlignment(Pos.CENTER_LEFT);
-        tempContent.setStyle("-fx-background-color: #535353; -fx-background-radius: 10px; -fx-border-radius: 10px");
+        tempContent.setStyle("-fx-background-color: #262627; -fx-background-radius: 10px; -fx-border-radius: 10px");
         tempContent.setPadding(new Insets(5,5,5,5));
 
         // Crie uma cena temporária com o novo HBox
@@ -53,7 +53,7 @@ public class Notifier {
 
         HBox content = new HBox(10, iconView, label);
         content.setAlignment(Pos.CENTER_LEFT);
-        content.setStyle("-fx-background-color: #535353; -fx-background-radius: 10px; -fx-border-radius: 10px");
+        content.setStyle("-fx-background-color: #262627; -fx-background-radius: 10px; -fx-border-radius: 10px");
         content.setPadding(new Insets(5,5,5,5));
 
         // Crie a cena final com o HBox final e a largura preferida
