@@ -127,10 +127,34 @@
                 <Cursor fx:constant="HAND" />
             </cursor>
         </Button>
-        <Button fx:id="buttonGoogle" layoutX="130.0" layoutY="474.0" mnemonicParsing="false" onMouseEntered="#ButtonGoogle" onMouseExited="#ButtonGoogleExited" prefHeight="36.0" prefWidth="258.0" styleClass="buttonGoogle" stylesheets="@main.css">
+        <Button fx:id="buttonGoogle" layoutX="130.0" layoutY="474.0" mnemonicParsing="false" onMouseClicked="#googleLogin" onMouseEntered="#ButtonGoogle" onMouseExited="#ButtonGoogleExited" prefHeight="36.0" prefWidth="258.0" styleClass="buttonGoogle" stylesheets="@main.css">
             <cursor>
                 <Cursor fx:constant="HAND" />
-            </cursor></Button>
+            </cursor>
+         <graphic>
+              <Label stylesheets="@main.css" text="Login with Google">
+                  <font>
+                      <Font size="14.0" />
+                  </font>
+                  <styleClass>
+                      <String fx:value="text" />
+                      <String fx:value="googleText" />
+                  </styleClass>
+                  <cursor>
+                      <Cursor fx:constant="HAND" />
+                  </cursor>
+               <graphic>
+                    <ImageView styleClass="googleIcon">
+                        <image>
+                            <Image url="@../../../imgs/google.png" />
+                        </image>
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </ImageView>
+               </graphic>
+              </Label>
+         </graphic></Button>
         <Label layoutX="236.0" layoutY="427.0" onMouseClicked="#LoginClicked" onMouseEntered="#signUpButton" onMouseExited="#signUpButtonExited" styleClass="text" stylesheets="@main.css" text="Log in" textFill="WHITE">
             <font>
                 <Font size="15.5" />
@@ -139,26 +163,6 @@
                 <Cursor fx:constant="HAND" />
             </cursor>
         </Label>
-        <Label layoutX="210.0" layoutY="482.0" onMouseEntered="#ButtonGoogle" onMouseExited="#ButtonGoogleExited" stylesheets="@main.css" text="Login with Google">
-            <font>
-                <Font size="14.0" />
-            </font>
-            <styleClass>
-                <String fx:value="text" />
-                <String fx:value="googleText" />
-            </styleClass>
-            <cursor>
-                <Cursor fx:constant="HAND" />
-            </cursor>
-        </Label>
-        <ImageView layoutX="183.0" layoutY="482.0" onMouseEntered="#ButtonGoogle" onMouseExited="#ButtonGoogleExited" styleClass="googleIcon">
-            <image>
-                <Image url="@../../../imgs/google.png" />
-            </image>
-            <cursor>
-                <Cursor fx:constant="HAND" />
-            </cursor>
-        </ImageView>
         <CheckBox fx:id="rememberMe" contentDisplay="TOP" layoutX="131.0" layoutY="352.0" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-focus-traversable: false;" styleClass="text" stylesheets="@main.css" text="Remember me?" textFill="#989a9e" />
         <Hyperlink fx:id="forgot" layoutX="279.0" layoutY="349.0" onMouseClicked="#forgotPassowordAction" text="Forgot Password ?" textFill="#989a9e" />
       <Pane fx:id="popup_password" layoutX="350.0" layoutY="180.0" prefHeight="240.0" prefWidth="300.0" style="-fx-background-color: #253158; -fx-border-radius: 10px; -fx-background-radius: 10px;" visible="false">
@@ -181,7 +185,7 @@
                   <Font size="13.0" />
                </font>
             </Label>
-            <TextField fx:id="password" layoutX="75.0" layoutY="108.0" prefHeight="25.0" prefWidth="149.0" promptText="Password"/>
+            <TextField fx:id="password" layoutX="75.0" layoutY="108.0" prefHeight="25.0" prefWidth="149.0" promptText="Password" />
             <Button layoutX="75.0" layoutY="181.0" mnemonicParsing="false" onMouseClicked="#confirm_password" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: #008eff;" styleClass="buttonSign" stylesheets="@main.css" text="Confirm" textFill="WHITE">
                <font>
                   <Font name="Arial Bold" size="14.0" />

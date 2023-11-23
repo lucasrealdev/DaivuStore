@@ -131,10 +131,34 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </Button>
-      <Button fx:id="buttonGoogle" layoutX="130.0" layoutY="474.0" mnemonicParsing="false" onMouseEntered="#ButtonGoogle" onMouseExited="#ButtonGoogleExited" prefHeight="36.0" prefWidth="258.0" styleClass="buttonGoogle" stylesheets="@main.css">
+      <Button fx:id="buttonGoogle" layoutX="130.0" layoutY="474.0" mnemonicParsing="false" onMouseClicked="#googleRegister" onMouseEntered="#ButtonGoogle" onMouseExited="#ButtonGoogleExited" prefHeight="36.0" prefWidth="258.0" styleClass="buttonGoogle" stylesheets="@main.css">
          <cursor>
             <Cursor fx:constant="HAND" />
-         </cursor></Button>
+         </cursor>
+         <graphic>
+            <Label stylesheets="@main.css" text="Register with Google">
+               <font>
+                  <Font size="14.0" />
+               </font>
+               <styleClass>
+                  <String fx:value="text" />
+                  <String fx:value="googleText" />
+               </styleClass>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <graphic>
+                  <ImageView styleClass="googleIcon">
+                     <image>
+                        <Image url="@../../../imgs/google.png" />
+                     </image>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </ImageView>
+               </graphic>
+            </Label>
+         </graphic></Button>
       <Label layoutX="230.0" layoutY="428.0" onMouseClicked="#RegisterClicked" onMouseEntered="#signUpButton" onMouseExited="#signUpButtonExited" styleClass="text" stylesheets="@main.css" text="Sign Up" textFill="WHITE">
          <font>
             <Font size="15.5" />
@@ -143,25 +167,5 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </Label>
-      <Label layoutX="202.0" layoutY="482.0" onMouseEntered="#ButtonGoogle" onMouseExited="#ButtonGoogleExited" stylesheets="@main.css" text="Register with Google">
-         <font>
-            <Font size="14.0" />
-         </font>
-         <styleClass>
-            <String fx:value="text" />
-            <String fx:value="googleText" />
-         </styleClass>
-         <cursor>
-            <Cursor fx:constant="HAND" />
-         </cursor>
-      </Label>
-      <ImageView layoutX="177.0" layoutY="482.0" onMouseEntered="#ButtonGoogle" onMouseExited="#ButtonGoogleExited" styleClass="googleIcon">
-         <image>
-            <Image url="@../../../imgs/google.png" />
-         </image>
-         <cursor>
-            <Cursor fx:constant="HAND" />
-         </cursor>
-      </ImageView>
    </children>
 </AnchorPane>

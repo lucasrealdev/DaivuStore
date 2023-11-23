@@ -4,6 +4,7 @@ import com.example.components.Notifier;
 import com.example.components.VisiblePasswordFieldSkin;
 import com.example.dao.ClienteDAO;
 import com.example.dao.EmailSender;
+import com.example.dao.GoogleAuth;
 import com.example.entity.Cliente;
 import com.example.entity.IdUser;
 import javafx.animation.FadeTransition;
@@ -86,10 +87,7 @@ public class HelloController implements Serializable{
     private final ClienteDAO clienteDAO = new ClienteDAO();
     private double xOffset = 0;
     private double yOffset = 0;
-
-    public HelloController() {
-    }
-
+    private final GoogleAuth googleAuth = new GoogleAuth();
     @FXML
     private void initialize() {
         fadeTransition = new FadeTransition(Duration.seconds(2), imageViewer);
@@ -147,11 +145,35 @@ public class HelloController implements Serializable{
     }
 
     @FXML
+    void googleRegister(MouseEvent event) {
+        try {
+            Stage stage2 = (Stage) switchLayoutButton.getScene().getWindow();
+            GoogleAuth.createAccountGoogle();
+            load(stage2, fxmlLoaderL);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void googleLogin(MouseEvent event) {
+        try {
+            Stage stage2 = (Stage) switchLayoutButton.getScene().getWindow();
+            String[] credentials = GoogleAuth.loginAccountGoogle();
+            login(credentials[0], credentials[1], stage2);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
     void LoginClicked() {
         String email = tfEmailLogin.getText();
         String senha = tfPasswordLogin.getText();
         Stage stage2 = (Stage) switchLayoutButton.getScene().getWindow();
+        login(email, senha, stage2);
+    }
 
+    private void login(String email, String senha, Stage stage2){
         AtomicBoolean navigationDone = new AtomicBoolean(false);
 
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
@@ -232,16 +254,9 @@ public class HelloController implements Serializable{
         }, 500, TimeUnit.MILLISECONDS);
 
         Thread backgroundThread = new Thread(() -> {
-            Boolean nomeRepetido = clienteDAO.verificarNomeDeUsuarioExistente(nomeDeUsuario);
             Boolean emailRepetido = clienteDAO.verificarEmailExistente(email);
             Platform.runLater(() -> {
                 if (!navigationDone.get()) {
-                    if (nomeRepetido) {
-                        showNotification("Nome de usuário já está em uso. Escolha outro nome de usuário.", false);
-                        navigationDone.set(true);
-                        load(stage2, fxmlLoaderR);
-                        return;
-                    }
                     if (emailRepetido) {
                         showNotification("Email já está em uso. Escolha outro email.", false);
                         navigationDone.set(true);
