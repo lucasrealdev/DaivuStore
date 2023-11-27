@@ -1,29 +1,29 @@
 package com.example.dao;
 
-import com.example.components.Notifier;
-import com.example.entity.Cliente;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.*;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
-
 public class GoogleAuth {
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-    private static final String TOKENS_DIRECTORY_PATH = "tokens";
-    private static final ClienteDAO clienteDAO = new ClienteDAO();
 
     // Insira manualmente as informações de credenciais abaixo
     private static final String CLIENT_ID = "407870711761-5rnvngceb376369bc545a7i16vkaom2k.apps.googleusercontent.com";
@@ -38,14 +38,15 @@ public class GoogleAuth {
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, clientSecrets,
                 Collections.singleton("https://www.googleapis.com/auth/userinfo.email"))
-                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
                 .setAccessType("offline")
                 .build();
 
         return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
     }
 
-    public static void createAccountGoogle() throws IOException, GeneralSecurityException {
+    public static String[] getCredentials() throws IOException, GeneralSecurityException {
+        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 
         Credential credential = getCredentials(HTTP_TRANSPORT);
@@ -66,56 +67,15 @@ public class GoogleAuth {
         String userId = jsonObject.get("id").getAsString();
 
         int index = userEmail.indexOf('@');
-        
+
         if (index != -1) { // Verifica se o caractere '@' foi encontrado
             userName = userEmail.substring(0, index); // Obtém a parte antes do '@'
         } else {
             System.out.println("Endereço de e-mail inválido.");
         }
 
-        boolean emailRepetido = clienteDAO.verificarEmailExistente(userEmail);
-        if (emailRepetido){
-            showNotification("Email Já Registrado", false);
-        }
-        else {
-            int insercaoSucesso = clienteDAO.save(new Cliente(userName, userEmail, userId));
-            if (insercaoSucesso == 1) {
-                showNotification("Cadastro bem-sucedido", true);
-            } else {
-                showNotification("Erro ao cadastrar o cliente", false);
-            }
-        }
-        response.disconnect();
-    }
-
-    public static String[] loginAccountGoogle() throws IOException, GeneralSecurityException{
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-
-        Credential credential = getCredentials(HTTP_TRANSPORT);
-
-        // Fazendo uma requisição para obter informações do usuário autenticado
-        HttpRequestFactory requestFactory = HTTP_TRANSPORT.createRequestFactory(credential);
-        GenericUrl url = new GenericUrl("https://www.googleapis.com/oauth2/v1/userinfo"); // Endpoint para informações do usuário
-        HttpRequest request = requestFactory.buildGetRequest(url);
-        HttpResponse response = request.execute();
-
-        // Lendo a resposta JSON e obtendo e-mail e ID do usuário
-        String jsonResponse = response.parseAsString();
-
-        // Parsing do JSON usando Gson
-        JsonObject jsonObject = JsonParser.parseString(jsonResponse).getAsJsonObject();
-        String userEmail = jsonObject.get("email").getAsString();
-        String userId = jsonObject.get("id").getAsString();
-
-        String[] credentials = {userEmail, userId};
-
         response.disconnect();
 
-        return credentials;
-    }
-
-    private static void showNotification(String message, boolean isSuccess) {
-        Notifier notifier = new Notifier(message, isSuccess);
-        notifier.show();
+        return new String[]{userName, userEmail, userId};
     }
 }

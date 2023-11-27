@@ -15,6 +15,8 @@ module com.example.sprintjava {
     requires com.google.api.client.extensions.jetty.auth;
     requires jdk.httpserver;
     requires com.google.gson;
+    requires javafx.web;
+    requires json;
 
     opens com.example.sprintjava to javafx.fxml;
     exports com.example.sprintjava;

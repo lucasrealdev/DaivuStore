@@ -29,6 +29,7 @@ public class Notifier {
     public Notifier(String message, boolean isSuccess) {
         stage = new Stage();
         stage.initStyle(StageStyle.TRANSPARENT);
+        stage.setAlwaysOnTop(true);
 
         Image iconImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(isSuccess ? "/imgs/correto.png" : "/imgs/erro.png")));
         ImageView iconView = new ImageView(iconImage);

@@ -29,6 +29,7 @@ import javafx.util.converter.IntegerStringConverter;
 
 import java.io.*;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -87,7 +88,7 @@ public class HelloController implements Serializable{
     private final ClienteDAO clienteDAO = new ClienteDAO();
     private double xOffset = 0;
     private double yOffset = 0;
-    private final GoogleAuth googleAuth = new GoogleAuth();
+
     @FXML
     private void initialize() {
         fadeTransition = new FadeTransition(Duration.seconds(2), imageViewer);
@@ -124,7 +125,6 @@ public class HelloController implements Serializable{
                 TextFormatter<Integer> textFormatter = new TextFormatter<>(new IntegerStringConverter(), null, filter);
                 code_tf.setTextFormatter(textFormatter);
             }
-
         });
     }
 
@@ -133,7 +133,6 @@ public class HelloController implements Serializable{
     private final FXMLLoader fxmlLoaderMainAdm = new FXMLLoader(HelloApplication.class.getResource("mainAdm.fxml"));
     private final FXMLLoader fxmlLoaderMainClient = new FXMLLoader(HelloApplication.class.getResource("mainClient.fxml"));
     private final FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("loading.fxml"));
-
     @FXML
     void closePopup() {
         popup_code.setVisible(false);
@@ -145,22 +144,30 @@ public class HelloController implements Serializable{
     }
 
     @FXML
-    void googleRegister(MouseEvent event) {
+    void googleRegister() {
         try {
             Stage stage2 = (Stage) switchLayoutButton.getScene().getWindow();
-            GoogleAuth.createAccountGoogle();
-            load(stage2, fxmlLoaderL);
+            String[] credentials = GoogleAuth.getCredentials();
+            stage2.setAlwaysOnTop(true);
+            stage2.setAlwaysOnTop(false);
+            register(credentials[0], credentials[1], credentials[2], true);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @FXML
-    void googleLogin(MouseEvent event) {
+    void googleLogin() {
         try {
             Stage stage2 = (Stage) switchLayoutButton.getScene().getWindow();
-            String[] credentials = GoogleAuth.loginAccountGoogle();
-            login(credentials[0], credentials[1], stage2);
+            String[] credentials = GoogleAuth.getCredentials();
+            stage2.setAlwaysOnTop(true);
+            stage2.setAlwaysOnTop(false);
+            login(credentials[1], credentials[2], true).thenAccept(loginResult -> {
+                if (!loginResult) {
+                    showNotification("Você ainda não cadastrou essa conta!", false);
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -169,49 +176,7 @@ public class HelloController implements Serializable{
     void LoginClicked() {
         String email = tfEmailLogin.getText();
         String senha = tfPasswordLogin.getText();
-        Stage stage2 = (Stage) switchLayoutButton.getScene().getWindow();
-        login(email, senha, stage2);
-    }
-
-    private void login(String email, String senha, Stage stage2){
-        AtomicBoolean navigationDone = new AtomicBoolean(false);
-
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-
-        // Agendar a tarefa para mostrar a tela de loading após 500 milisegundos
-        executor.schedule(() -> {
-            if (!navigationDone.get()) {
-                Platform.runLater(() -> load(stage2, fxmlLoader));
-            }
-        }, 500, TimeUnit.MILLISECONDS);
-
-        Thread backgroundThread = new Thread(() -> {
-            Integer loginSucesso = clienteDAO.verificarLogin(email, senha);
-            Platform.runLater(() -> {
-                if (!navigationDone.get()) {
-                    if (loginSucesso != null) {
-                        boolean isAdm = clienteDAO.verificarAdm(loginSucesso);
-                        if (isAdm) {
-                            showNotification("Login como Administrador bem Sucedido.", true);
-                            load(stage2, fxmlLoaderMainAdm);
-                            IdUser.setIduser(loginSucesso);
-                        } else {
-                            load(stage2, fxmlLoaderMainClient);
-                            showNotification("Login bem Sucedido.", true);
-                            IdUser.setIduser(loginSucesso);
-                        }
-                        if (rememberMe.isSelected()){
-                            salvarLog(clienteDAO.get(Long.valueOf(loginSucesso)));
-                        }
-                    } else {
-                        showNotification("Login Falhou.", false);
-                        load(stage2, fxmlLoaderL);
-                    }
-                    navigationDone.set(true);
-                }
-            });
-        });
-        backgroundThread.start();
+        login(email, senha, false);
     }
 
     @FXML
@@ -230,7 +195,7 @@ public class HelloController implements Serializable{
             return;
         }
 
-        if (!isStrongPassword(senha)) {
+        if (isStrongPassword(senha)) {
             showNotification("Senha fraca. A senha deve incluir 8 caracteres, 1 letra maiuscula e um caracter especial.", false);
             return;
         }
@@ -240,43 +205,114 @@ public class HelloController implements Serializable{
             return;
         }
 
+        register(nomeDeUsuario, email, senha, false);
+    }
+
+    private CompletableFuture<Boolean> login(String email, String senha, boolean isGoogle) {
+        CompletableFuture<Boolean> loginResult = new CompletableFuture<>();
+
         Stage stage2 = (Stage) switchLayoutButton.getScene().getWindow();
 
         AtomicBoolean navigationDone = new AtomicBoolean(false);
 
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
-        // Agendar a tarefa para mostrar a tela de loading após 500 milisegundos
         executor.schedule(() -> {
             if (!navigationDone.get()) {
                 Platform.runLater(() -> load(stage2, fxmlLoader));
             }
-        }, 500, TimeUnit.MILLISECONDS);
+        }, 300, TimeUnit.MILLISECONDS);
 
         Thread backgroundThread = new Thread(() -> {
-            Boolean emailRepetido = clienteDAO.verificarEmailExistente(email);
+            Integer loginSuccessId = clienteDAO.verificarLogin(email, senha);
             Platform.runLater(() -> {
                 if (!navigationDone.get()) {
-                    if (emailRepetido) {
-                        showNotification("Email já está em uso. Escolha outro email.", false);
-                        navigationDone.set(true);
-                        load(stage2, fxmlLoaderR);
-                        return;
-                    }
-                    int insercaoSucesso = clienteDAO.save(new Cliente(nomeDeUsuario, email, senha));
-                    if (insercaoSucesso == 1) {
-                        showNotification("Cadastro bem-sucedido", true);
-                        load(stage2, fxmlLoaderL);
+                    if (loginSuccessId != null) {
+                        boolean isAdm = clienteDAO.verificarAdm(loginSuccessId);
+                        if (isAdm) {
+                            showNotification("Login como Administrador bem-sucedido.", true);
+                            load(stage2, fxmlLoaderMainAdm);
+                            IdUser.setIduser(loginSuccessId);
+                        } else {
+                            load(stage2, fxmlLoaderMainClient);
+                            showNotification("Login bem-sucedido.", true);
+                            IdUser.setIduser(loginSuccessId);
+                        }
+                        if (rememberMe!=null && rememberMe.isSelected()) {
+                            salvarLog(clienteDAO.get(Long.valueOf(loginSuccessId)));
+                        }
+                        loginResult.complete(true); // Login bem-sucedido
                     } else {
-                        showNotification("Erro ao cadastrar o cliente", false);
+                        if (!isGoogle) {
+                            showNotification("Login falhou.", false);
+                        }
                         load(stage2, fxmlLoaderR);
+                        loginResult.complete(false); // Login falhou
                     }
                     navigationDone.set(true);
                 }
             });
         });
         backgroundThread.start();
+
+        return loginResult;
     }
+
+    private CompletableFuture<Boolean> register(String nomeDeUsuario, String email, String senha, boolean isGoogle) {
+        CompletableFuture<Boolean> registrationResult = new CompletableFuture<>();
+
+        Stage stage2 = (Stage) switchLayoutButton.getScene().getWindow();
+
+        AtomicBoolean navigationDone = new AtomicBoolean(false);
+
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+
+        executor.schedule(() -> {
+            if (!navigationDone.get()) {
+                Platform.runLater(() -> load(stage2, fxmlLoader));
+            }
+        }, 300, TimeUnit.MILLISECONDS);
+
+        Thread backgroundThread = new Thread(() -> {
+            boolean emailRepetido = clienteDAO.verificarEmailExistente(email);
+            Platform.runLater(() -> {
+                if (!navigationDone.get()) {
+                    if (emailRepetido) {
+                        if (!isGoogle) {
+                            showNotification("Email já está em uso. Escolha outro email.", false);
+                        }
+                        else{
+                            showNotification("Conta Já Cadastrada", false);
+                        }
+                        navigationDone.set(true);
+                        load(stage2, fxmlLoaderL);
+                        registrationResult.complete(false); // Registro falhou
+                        return;
+                    }
+                    int insercaoSucesso = clienteDAO.save(new Cliente(nomeDeUsuario, email, senha));
+                    if (insercaoSucesso == 1) {
+                        showNotification("Cadastro bem-sucedido", true);
+                        load(stage2, fxmlLoaderL);
+                        registrationResult.complete(true); // Registro bem-sucedido
+                    } else {
+                        if (!isGoogle) {
+                            showNotification("Erro ao cadastrar o cliente", false);
+                        }
+                        else {
+                            showNotification("Conta Já Cadastrada", false);
+                        }
+                        load(stage2, fxmlLoaderL);
+                        registrationResult.complete(false); // Registro falhou
+                    }
+                    navigationDone.set(true);
+                }
+            });
+        });
+        backgroundThread.start();
+
+        return registrationResult;
+    }
+
 
     @FXML
     void forgotPassowordAction() {
@@ -297,7 +333,7 @@ public class HelloController implements Serializable{
             showNotification("A senha não pode estar vazia.", false);
             return;
         }
-        if (!isStrongPassword(senha)) {
+        if (isStrongPassword(senha)) {
             showNotification("Senha fraca. A senha deve incluir 8 caracteres, 1 letra maiuscula e um caracter especial.", false);
             return;
         }
@@ -372,7 +408,7 @@ public class HelloController implements Serializable{
 
     private boolean isStrongPassword(String senha) {
         if (senha.length() < 8) {
-            return false;
+            return true;
         }
 
         boolean hasUpperCase = false;
@@ -389,11 +425,11 @@ public class HelloController implements Serializable{
             }
 
             if (hasUpperCase && hasLowerCase && hasDigit) {
-                return true;
+                return false;
             }
         }
 
-        return false;
+        return true;
     }
 
     @FXML
@@ -548,11 +584,10 @@ public class HelloController implements Serializable{
                 yOffset = event.getSceneY();
             });
 
-            Stage finalStage = stage;
             scene.setOnMouseDragged(event -> {
                 if (event.getSceneY() <= 100) {
-                    finalStage.setX(event.getScreenX() - xOffset);
-                    finalStage.setY(event.getScreenY() - yOffset);
+                    stage.setX(event.getScreenX() - xOffset);
+                    stage.setY(event.getScreenY() - yOffset);
                 }
             });
 

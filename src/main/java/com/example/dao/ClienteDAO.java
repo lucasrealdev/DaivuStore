@@ -76,6 +76,22 @@ public class ClienteDAO implements DAO<Cliente> {
         }
     }
 
+    public boolean verificarNomeDeUsuarioExistente(String nomeDeUsuario) {
+        String sql = "SELECT COUNT(*) FROM clientes WHERE nome_de_usuario = ?";
+        try (Connection connection = ConnectionDb.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, nomeDeUsuario);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next() && resultSet.getInt(1) > 0) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public boolean verificarEmailExistente(String email) {
         String sql = "SELECT COUNT(*) FROM clientes WHERE email = ?";
         try (Connection connection = ConnectionDb.getConnection();
