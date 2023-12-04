@@ -16,6 +16,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -27,12 +30,11 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
 
+import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
@@ -89,44 +91,66 @@ public class HelloController implements Serializable{
     private double xOffset = 0;
     private double yOffset = 0;
 
+    public HelloController() {
+    }
+
     @FXML
     private void initialize() {
+        configureFadeTransition();
+        configureTimeline();
+        configureEyeIcons();
+        runLaterTasks();
+    }
+
+    private void configureFadeTransition() {
         fadeTransition = new FadeTransition(Duration.seconds(2), imageViewer);
         fadeTransition.setFromValue(1.0);
         fadeTransition.setToValue(0.0);
+    }
 
+    private void configureTimeline() {
         Duration duration = Duration.seconds(4);
         KeyFrame keyFrame = new KeyFrame(duration, e -> changeImage());
         Timeline timeline = new Timeline(keyFrame);
-        timeline.setCycleCount(Timeline.INDEFINITE); // Repete indefinidamente
-
-        if (eyeLogin != null) {
-            eyeLogin.setGraphic(new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/imgs/closeEye.png")).toExternalForm())));
-            VisiblePasswordFieldSkin skin = new VisiblePasswordFieldSkin(tfPasswordLogin, eyeLogin);
-            tfPasswordLogin.setSkin(skin);
-        } else if (eyeRegister != null) {
-            eyeRegister.setGraphic(new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/imgs/closeEye.png")).toExternalForm())));
-            VisiblePasswordFieldSkin skin = new VisiblePasswordFieldSkin(tfPasswordRegister, eyeRegister);
-            tfPasswordRegister.setSkin(skin);
-        }
+        timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
+    }
 
+    private void configureEyeIcons() {
+        if (eyeLogin != null) {
+            setEyeGraphic(eyeLogin, tfPasswordLogin);
+        } else if (eyeRegister != null) {
+            setEyeGraphic(eyeRegister, tfPasswordRegister);
+        }
+    }
+
+    private void setEyeGraphic(Button eyeButton, PasswordField passwordField) {
+        eyeButton.setGraphic(new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/imgs/closeEye.png")).toExternalForm())));
+        VisiblePasswordFieldSkin skin = new VisiblePasswordFieldSkin(passwordField, eyeButton);
+        passwordField.setSkin(skin);
+    }
+
+    private void runLaterTasks() {
         Platform.runLater(() -> {
             carregarLog();
-
-            if (code_tf != null){
-                UnaryOperator<TextFormatter.Change> filter = change -> {
-                    String newText = change.getControlNewText();
-                    if (Pattern.matches("[0-9]*", newText) && newText.length() <= 4) {
-                        return change;
-                    }
-                    return null;
-                };
-                TextFormatter<Integer> textFormatter = new TextFormatter<>(new IntegerStringConverter(), null, filter);
-                code_tf.setTextFormatter(textFormatter);
-            }
+            applyCodeTextFieldFormatter();
         });
     }
+
+    private void applyCodeTextFieldFormatter() {
+        if (code_tf != null) {
+            UnaryOperator<TextFormatter.Change> filter = change -> {
+                String newText = change.getControlNewText();
+                if (Pattern.matches("[0-9]*", newText) && newText.length() <= 4) {
+                    return change;
+                }
+                return null;
+            };
+            TextFormatter<Integer> textFormatter = new TextFormatter<>(new IntegerStringConverter(), null, filter);
+            code_tf.setTextFormatter(textFormatter);
+        }
+    }
+
 
     private final FXMLLoader fxmlLoaderL = new FXMLLoader(HelloApplication.class.getResource("loginScreen.fxml"));
     private final FXMLLoader fxmlLoaderR = new FXMLLoader(HelloApplication.class.getResource("registerScreen.fxml"));
@@ -137,7 +161,6 @@ public class HelloController implements Serializable{
     void closePopup() {
         popup_code.setVisible(false);
     }
-
     @FXML
     void closePopupPassword() {
         popup_password.setVisible(false);
@@ -148,8 +171,7 @@ public class HelloController implements Serializable{
         try {
             Stage stage2 = (Stage) switchLayoutButton.getScene().getWindow();
             String[] credentials = GoogleAuth.getCredentials();
-            stage2.setAlwaysOnTop(true);
-            stage2.setAlwaysOnTop(false);
+            closeAuthenticationTab(stage2, tfEmailRegister);
             register(credentials[0], credentials[1], credentials[2], true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -161,8 +183,7 @@ public class HelloController implements Serializable{
         try {
             Stage stage2 = (Stage) switchLayoutButton.getScene().getWindow();
             String[] credentials = GoogleAuth.getCredentials();
-            stage2.setAlwaysOnTop(true);
-            stage2.setAlwaysOnTop(false);
+            closeAuthenticationTab(stage2, tfEmailLogin);
             login(credentials[1], credentials[2], true).thenAccept(loginResult -> {
                 if (!loginResult) {
                     showNotification("Você ainda não cadastrou essa conta!", false);
@@ -211,108 +232,86 @@ public class HelloController implements Serializable{
     private CompletableFuture<Boolean> login(String email, String senha, boolean isGoogle) {
         CompletableFuture<Boolean> loginResult = new CompletableFuture<>();
 
-        Stage stage2 = (Stage) switchLayoutButton.getScene().getWindow();
-
+        Stage stage = (Stage) switchLayoutButton.getScene().getWindow();
         AtomicBoolean navigationDone = new AtomicBoolean(false);
 
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
 
-        executor.schedule(() -> {
-            if (!navigationDone.get()) {
-                Platform.runLater(() -> load(stage2, fxmlLoader));
-            }
-        }, 300, TimeUnit.MILLISECONDS);
-
-        Thread backgroundThread = new Thread(() -> {
+        executor.execute(() -> {
+            load(stage, fxmlLoader);
             Integer loginSuccessId = clienteDAO.verificarLogin(email, senha);
-            Platform.runLater(() -> {
-                if (!navigationDone.get()) {
-                    if (loginSuccessId != null) {
-                        boolean isAdm = clienteDAO.verificarAdm(loginSuccessId);
-                        if (isAdm) {
-                            showNotification("Login como Administrador bem-sucedido.", true);
-                            load(stage2, fxmlLoaderMainAdm);
-                            IdUser.setIduser(loginSuccessId);
-                        } else {
-                            load(stage2, fxmlLoaderMainClient);
-                            showNotification("Login bem-sucedido.", true);
-                            IdUser.setIduser(loginSuccessId);
-                        }
-                        if (rememberMe!=null && rememberMe.isSelected()) {
-                            salvarLog(clienteDAO.get(Long.valueOf(loginSuccessId)));
-                        }
-                        loginResult.complete(true); // Login bem-sucedido
-                    } else {
-                        if (!isGoogle) {
-                            showNotification("Login falhou.", false);
-                        }
-                        load(stage2, fxmlLoaderR);
-                        loginResult.complete(false); // Login falhou
-                    }
-                    navigationDone.set(true);
-                }
-            });
+            Platform.runLater(() -> handleLoginResult(loginSuccessId, isGoogle, stage, navigationDone, loginResult));
         });
-        backgroundThread.start();
 
+        executor.shutdown();
         return loginResult;
     }
 
-    private CompletableFuture<Boolean> register(String nomeDeUsuario, String email, String senha, boolean isGoogle) {
-        CompletableFuture<Boolean> registrationResult = new CompletableFuture<>();
+    private void handleLoginResult(Integer loginSuccessId, boolean isGoogle, Stage stage, AtomicBoolean navigationDone, CompletableFuture<Boolean> loginResult) {
+        if (!navigationDone.get()) {
+            if (loginSuccessId != null) {
+                boolean isAdm = clienteDAO.verificarAdm(loginSuccessId);
+                String notificationMessage = isAdm ? "Login como Administrador bem-sucedido." : "Login bem-sucedido.";
 
-        Stage stage2 = (Stage) switchLayoutButton.getScene().getWindow();
-
-        AtomicBoolean navigationDone = new AtomicBoolean(false);
-
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-
-        executor.schedule(() -> {
-            if (!navigationDone.get()) {
-                Platform.runLater(() -> load(stage2, fxmlLoader));
-            }
-        }, 300, TimeUnit.MILLISECONDS);
-
-        Thread backgroundThread = new Thread(() -> {
-            boolean emailRepetido = clienteDAO.verificarEmailExistente(email);
-            Platform.runLater(() -> {
-                if (!navigationDone.get()) {
-                    if (emailRepetido) {
-                        if (!isGoogle) {
-                            showNotification("Email já está em uso. Escolha outro email.", false);
-                        }
-                        else{
-                            showNotification("Conta Já Cadastrada", false);
-                        }
-                        navigationDone.set(true);
-                        load(stage2, fxmlLoaderL);
-                        registrationResult.complete(false); // Registro falhou
-                        return;
-                    }
-                    int insercaoSucesso = clienteDAO.save(new Cliente(nomeDeUsuario, email, senha));
-                    if (insercaoSucesso == 1) {
-                        showNotification("Cadastro bem-sucedido", true);
-                        load(stage2, fxmlLoaderL);
-                        registrationResult.complete(true); // Registro bem-sucedido
-                    } else {
-                        if (!isGoogle) {
-                            showNotification("Erro ao cadastrar o cliente", false);
-                        }
-                        else {
-                            showNotification("Conta Já Cadastrada", false);
-                        }
-                        load(stage2, fxmlLoaderL);
-                        registrationResult.complete(false); // Registro falhou
-                    }
-                    navigationDone.set(true);
+                if (isAdm) {
+                    load(stage, fxmlLoaderMainAdm);
+                } else {
+                    load(stage, fxmlLoaderMainClient);
                 }
-            });
-        });
-        backgroundThread.start();
+                IdUser.setIduser(loginSuccessId);
 
-        return registrationResult;
+                if (rememberMe != null && rememberMe.isSelected()) {
+                    salvarLog(clienteDAO.get(Long.valueOf(loginSuccessId)));
+                }
+                loginResult.complete(true);
+                showNotification(notificationMessage, true);
+            } else {
+                if (!isGoogle) {
+                    showNotification("Login falhou.", false);
+                }
+                load(stage, fxmlLoaderL);
+                loginResult.complete(false);
+            }
+            navigationDone.set(true);
+        }
     }
 
+
+    private void register(String nomeDeUsuario, String email, String senha, boolean isGoogle) {
+        CompletableFuture<Boolean> registrationResult = new CompletableFuture<>();
+
+        Stage stage = (Stage) switchLayoutButton.getScene().getWindow();
+        AtomicBoolean navigationDone = new AtomicBoolean(false);
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        executor.execute(() -> {
+            load(stage, fxmlLoader);
+            boolean emailRepetido = clienteDAO.verificarEmailExistente(email);
+            Platform.runLater(() -> handleRegistration(emailRepetido, nomeDeUsuario, email, senha, isGoogle, stage, navigationDone, registrationResult));
+        });
+
+        executor.shutdown();
+    }
+
+    private void handleRegistration(boolean emailRepetido, String nomeDeUsuario, String email, String senha, boolean isGoogle, Stage stage, AtomicBoolean navigationDone, CompletableFuture<Boolean> registrationResult) {
+        if (!navigationDone.get()) {
+            if (emailRepetido) {
+                String notificationMessage = isGoogle ? "Conta Já Cadastrada" : "Email já está em uso. Escolha outro email.";
+                showNotification(notificationMessage, false);
+                navigationDone.set(true);
+                load(stage, fxmlLoaderL);
+                registrationResult.complete(false);
+            } else {
+                int insercaoSucesso = clienteDAO.save(new Cliente(nomeDeUsuario, email, senha));
+                String notificationMessage = (insercaoSucesso == 1 && !isGoogle) ? "Cadastro bem-sucedido" : "Erro ao cadastrar o cliente";
+                showNotification(notificationMessage, insercaoSucesso == 1 && !isGoogle);
+                load(stage, fxmlLoaderL);
+                registrationResult.complete(insercaoSucesso == 1 && !isGoogle);
+                navigationDone.set(true);
+            }
+        }
+    }
 
     @FXML
     void forgotPassowordAction() {
@@ -365,7 +364,6 @@ public class HelloController implements Serializable{
 
     private void sendCode(){
         String to = tfEmailLogin.getText(); //Destino do Email
-
         if (clienteDAO.verificarEmailExistente(to)){
             emailSender.sendEmailAsync(to, loading_code);
             code_tf.setText("");
@@ -377,43 +375,19 @@ public class HelloController implements Serializable{
             showNotification("Email inexistente, Verifique o Email", false);
         }
     }
-
-    private void load(Stage stage2, FXMLLoader fxmlLoader){
-        try {
-            Scene scene = new Scene(fxmlLoader.load());
-            scene.setOnMousePressed(event -> {
-                xOffset = event.getSceneX();
-                yOffset = event.getSceneY();
-            });
-
-            scene.setOnMouseDragged(event -> {
-                if (event.getSceneY() <= 100) {
-                    stage2.setX(event.getScreenX() - xOffset);
-                    stage2.setY(event.getScreenY() - yOffset);
-                }
-            });
-            if (stage2 != null) {
-                stage2.setScene(scene);
-                stage2.setResizable(false);
-                scene.setFill(Color.TRANSPARENT);
-                stage2.initStyle(StageStyle.TRANSPARENT);
-                stage2.show();
-            }
-        } catch (IllegalStateException ignore){}
-        catch (Exception e) {e.printStackTrace();}
-    }
     private boolean isValidEmail(String email) {
         return email.matches("^[\\w.-]+@([\\w-]+\\.)+[A-Za-z]{2,4}$");
     }
 
     private boolean isStrongPassword(String senha) {
         if (senha.length() < 8) {
-            return true;
+            return false; // Senha muito curta
         }
 
         boolean hasUpperCase = false;
         boolean hasLowerCase = false;
         boolean hasDigit = false;
+        boolean hasSpecialChar = false;
 
         for (char c : senha.toCharArray()) {
             if (Character.isUpperCase(c)) {
@@ -422,14 +396,14 @@ public class HelloController implements Serializable{
                 hasLowerCase = true;
             } else if (Character.isDigit(c)) {
                 hasDigit = true;
-            }
-
-            if (hasUpperCase && hasLowerCase && hasDigit) {
-                return false;
+            } else {
+                // Verifica se o caractere é um caracter especial
+                hasSpecialChar = !Character.isLetterOrDigit(c);
             }
         }
 
-        return true;
+        // Verifica se todos os critérios foram atendidos
+        return hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar;
     }
 
     @FXML
@@ -457,12 +431,14 @@ public class HelloController implements Serializable{
 
     @FXML
     void changeToRegister() {
-        navigateTo("registerScreen.fxml");
+        Stage stage = (Stage) switchLayoutButton.getScene().getWindow();
+        load(stage, fxmlLoaderR);
     }
 
     @FXML
     void changeToLogin() {
-        navigateTo("loginScreen.fxml");
+        Stage stage = (Stage) switchLayoutButton.getScene().getWindow();
+        load(stage, fxmlLoaderL);
     }
 
     @FXML
@@ -573,11 +549,8 @@ public class HelloController implements Serializable{
         }
     }
 
-    private void navigateTo(String fxmlPath) {
+    private void load(Stage stage2, FXMLLoader fxmlLoader){
         try {
-            Stage stage = (Stage) switchLayoutButton.getScene().getWindow();
-
-            FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource(fxmlPath));
             Scene scene = new Scene(fxmlLoader.load());
             scene.setOnMousePressed(event -> {
                 xOffset = event.getSceneX();
@@ -586,22 +559,20 @@ public class HelloController implements Serializable{
 
             scene.setOnMouseDragged(event -> {
                 if (event.getSceneY() <= 100) {
-                    stage.setX(event.getScreenX() - xOffset);
-                    stage.setY(event.getScreenY() - yOffset);
+                    stage2.setX(event.getScreenX() - xOffset);
+                    stage2.setY(event.getScreenY() - yOffset);
                 }
             });
-
-            if (stage != null) {
-                stage.setScene(scene);
-                stage.setResizable(false);
+            if (stage2 != null) {
+                stage2.setScene(scene);
+                stage2.setResizable(false);
                 scene.setFill(Color.TRANSPARENT);
-                stage.initStyle(StageStyle.TRANSPARENT);
-                stage.show();
+                stage2.initStyle(StageStyle.TRANSPARENT);
+                stage2.show();
             }
         } catch (IllegalStateException ignore){}
         catch (Exception e) {e.printStackTrace();}
     }
-
     @FXML
     private void productClicked(){
         abrirLinkNoNavegador("https://daivu.netlify.app/#produtos");
@@ -634,7 +605,20 @@ public class HelloController implements Serializable{
         Notifier notifier = new Notifier(message, isSuccess);
         notifier.show();
     }
-
+    private void closeAuthenticationTab(Stage stage2, TextField textField) {
+        try {
+            Robot robot = new Robot();
+            robot.keyPress(KeyEvent.VK_CONTROL);
+            robot.keyPress(KeyEvent.VK_W);
+            robot.keyRelease(KeyEvent.VK_CONTROL);
+            robot.keyRelease(KeyEvent.VK_W);
+            stage2.setAlwaysOnTop(true);
+            stage2.setAlwaysOnTop(false);
+            textField.requestFocus();
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
+    }
     private void salvarLog(Cliente cliente) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("logAccount.ser"))) {
             out.writeObject(cliente);

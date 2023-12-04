@@ -155,7 +155,6 @@ public class MainAdmController {
         }
 
         try {
-            int ml = Integer.parseInt(mlStr);
             mlStr += "ml";
         } catch (NumberFormatException e) {
             showNotification("A quantidade(ml) deve ser um número inteiro válido.", false);

@@ -2,6 +2,7 @@ package com.example.sprintjava;
 
 import com.example.components.Notifier;
 import com.example.dao.ClienteDAO;
+import com.example.dao.ItensCarrinhoDAO;
 import com.example.dao.ProdutoDAO;
 import com.example.entity.Cliente;
 import com.example.entity.IdUser;
@@ -95,6 +96,7 @@ public class MainClientController{
     private double xOffset = 0;
     private double yOffset = 0;
     private final ArrayList<CheckBox> listCheckBox = new ArrayList<>();
+    private final ItensCarrinhoDAO itensCarrinhoDAO = new ItensCarrinhoDAO();
 
     @FXML
     private void searchPressed() {
@@ -104,29 +106,35 @@ public class MainClientController{
     }
 
     @FXML
-    private void initialize(){
-        if (root != null){
-            loadPage("mainClientPanel",160);
+    private void initialize() {
+        if (root != null) {
+            loadPage("mainClientPanel", 160);
         }
+
         productList = productDAO.getAllProdutos();
         filterResults = productList;
+
         Platform.runLater(() -> {
             createProductCards();
             createCardsCart();
             createCheckBox();
+
             if (ap != null) {
                 Scene scene = ap.getScene();
-                scene.setOnMouseClicked((MouseEvent event) -> {
-                    Double xScene = event.getX();
-                    Double yScene = event.getY();
-
-                    if (xScene <= 81 || xScene >= 281 || yScene <= 500 || yScene >= 580 && accountPane.isVisible()){
-                        accountPane.setVisible(false);
-                    }
-                });
+                scene.setOnMouseClicked(this::handleSceneMouseClicked);
             }
         });
     }
+
+    private void handleSceneMouseClicked(MouseEvent event) {
+        double xScene = event.getX();
+        double yScene = event.getY();
+
+        if ((xScene <= 81 || xScene >= 281 || yScene <= 500 || yScene >= 580) && accountPane.isVisible()) {
+            accountPane.setVisible(false);
+        }
+    }
+
 
     @FXML
     private void closeClicked(){
@@ -144,45 +152,37 @@ public class MainClientController{
     private void createCardsCart() {
         if (containerCart != null) {
             containerCart.getChildren().clear();
-            produtosCarrinho = carregarListaDoArquivo();
-            for (ProdutoCart produto : produtosCarrinho) {
-                createCardCart(produto);
-            }
+            produtosCarrinho = itensCarrinhoDAO.getAllProdutos(IdUser.getIduser());
+            produtosCarrinho.forEach(this::createCardCart);
         }
     }
+
     private void updateCardCart(ProdutoCart newProdutoCart) {
         for (int i = 0; i < produtosCarrinho.size(); i++) {
             ProdutoCart produtoCart = produtosCarrinho.get(i);
             if (Objects.equals(produtoCart.getProduto().getId(), newProdutoCart.getProduto().getId())) {
                 produtosCarrinho.set(i, newProdutoCart);
-                salvarListaEmArquivo();
+                itensCarrinhoDAO.update(newProdutoCart, IdUser.getIduser());
                 createCardsCart();
                 break;
             }
         }
-        salvarListaEmArquivo();
     }
 
-    private void createCheckBox(){
+    private void createCheckBox() {
         if (containerCheck != null) {
             ArrayList<String> listCheckS = productDAO.getAllUniqueBrands();
             containerCheck.setVgap(5);
-            for (String string : listCheckS) {
+
+            listCheckS.forEach(string -> {
                 CheckBox checkBox = new CheckBox(string);
-                checkBox.setStyle("""
-                        -fx-background-color:  transparent;
-                        -fx-focus-traversable:  false;
-                        -fx-font-weight: 800;
-                        -fx-font-family: 'Inter', sans-serif;
-                        -fx-font-style: normal;
-                        -fx-line-height: normal;
-                        -fx-font-size: 18px;
-                        """);
+                checkBox.setStyle("-fx-background-color: transparent; -fx-focus-traversable: false; -fx-font-weight: 800; -fx-font-family: 'Inter', sans-serif; -fx-font-style: normal; -fx-line-height: normal; -fx-font-size: 18px;");
                 listCheckBox.add(checkBox);
                 containerCheck.getChildren().add(checkBox);
-            }
+            });
         }
     }
+
 
     private void createProductCard(Produto product) {
         AnchorPane card = new AnchorPane();
@@ -271,7 +271,7 @@ public class MainClientController{
         botaoMenos.setOnMouseClicked(mouseEvent -> lessButton(produtoCarrinho));
         retangulo1.setOnMouseClicked(mouseEvent -> lessButton(produtoCarrinho));
 
-        Image cachedImage = ImageCache.getImageByURL(produtoCarrinho.getProduto().getLinkImagem());
+        Image cachedImage = new Image(produtoCarrinho.getProduto().getLinkImagem());
         ImageView imageView = new ImageView(cachedImage);
         imageView.setFitWidth(59);
         imageView.setFitHeight(97);
@@ -307,13 +307,14 @@ public class MainClientController{
         updateLabelsCart();
         showNotification("Numero maximo do mesmo produto atingido", false);
     }
-    private void lessButton(ProdutoCart produtoCarrinho){
+    private void lessButton(ProdutoCart produtoCarrinho) {
         if (produtoCarrinho.getQuantidadeProduto() > 1) {
             produtoCarrinho.setQuantidadeProduto(produtoCarrinho.getQuantidadeProduto() - 1);
             updateCardCart(produtoCarrinho);
             updateLabelsCart();
-               return;
+            return;
         }
+
         Alert confirmationDialog = new Alert(Alert.AlertType.CONFIRMATION);
         confirmationDialog.setTitle("Deseja Excluir?");
         confirmationDialog.setHeaderText(null);
@@ -323,17 +324,17 @@ public class MainClientController{
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
             produtosCarrinho.remove(produtoCarrinho);
-            salvarListaEmArquivo();
+            itensCarrinhoDAO.remove(IdUser.getIduser(), Math.toIntExact(produtoCarrinho.getProduto().getId()));
             createCardsCart();
             updateLabelsCart();
             showNotification("Produto removido do carrinho", true);
         }
     }
-
     private void updateLabelsCart() {
         double totalPriceValue = 0.0;
         int totalQuantity = 0;
 
+        // Calcula o preço total e a quantidade total dos itens no carrinho
         for (ProdutoCart produtoCart : produtosCarrinho) {
             double productPrice = produtoCart.getProduto().getPreco();
             int quantity = produtoCart.getQuantidadeProduto();
@@ -342,7 +343,7 @@ public class MainClientController{
             totalQuantity += quantity;
         }
 
-        // Atualize as Labels com os valores calculados
+        // Atualiza as Labels na interface gráfica com os valores calculados
         int finalTotalQuantity = totalQuantity;
         double finalTotalPriceValue = totalPriceValue;
         Platform.runLater(() -> {
@@ -445,20 +446,19 @@ public class MainClientController{
         accountPane.setVisible(true);
     }
     @FXML
-    void backClicked(){
-        //APAGAR ARQUIVO
-        try {
-            File file = new File("logAccount.ser");
-            if (file.exists()) {
-                if (file.delete()) {
-                    System.out.println("Arquivo logAccount.ser apagado com sucesso.");
-                } else {
-                    System.err.println("Não foi possível apagar o arquivo.");
-                }
+    void backClicked() {
+        // APAGAR ARQUIVO
+        File file = new File("logAccount.ser");
+        if (file.exists()) {
+            boolean deleted = file.delete();
+            if (deleted) {
+                System.out.println("Arquivo logAccount.ser apagado com sucesso.");
             } else {
-                System.err.println("O arquivo logAccount.ser não existe.");
+                System.err.println("Não foi possível apagar o arquivo.");
             }
-        } catch (Exception ignored) {}
+        } else {
+            System.err.println("O arquivo logAccount.ser não existe.");
+        }
 
         navigateTo();
     }
@@ -486,7 +486,7 @@ public class MainClientController{
     @FXML
     private void removeClicked(){
         produtosCarrinho.clear();
-        salvarListaEmArquivo();
+        itensCarrinhoDAO.removeAll(IdUser.getIduser());
         containerCart.getChildren().clear();
         updateLabelsCart();
     }
@@ -591,6 +591,34 @@ public class MainClientController{
             root.getChildren().add(newPane);
         }
     }
+    private void navigateTo() {
+        try {
+            stage = (Stage) root.getScene().getWindow();
+
+            FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("loginScreen.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+            scene.setOnMousePressed(event -> {
+                xOffset = event.getSceneX();
+                yOffset = event.getSceneY();
+            });
+
+            scene.setOnMouseDragged(event -> {
+                if (event.getSceneY() <= 100) {
+                    stage.setX(event.getScreenX() - xOffset);
+                    stage.setY(event.getScreenY() - yOffset);
+                }
+            });
+
+            if (stage != null) {
+                stage.setScene(scene);
+                stage.setResizable(false);
+                scene.setFill(Color.TRANSPARENT);
+                stage.initStyle(StageStyle.TRANSPARENT);
+                stage.show();
+            }
+        } catch (IllegalStateException ignore){}
+        catch (Exception e) {e.printStackTrace();}
+    }
 
     private Label createLabel(String text, double layoutX, double layoutY, String fontWeight, int fontSize, String color) {
         Label label = new Label(text);
@@ -615,37 +643,41 @@ public class MainClientController{
     }
 
     private void addToCart(Produto product, String message) {
-        produtosCarrinho = carregarListaDoArquivo();
         ProdutoCart existingProduct = findProductInCart(product);
-        if (existingProduct != null) {
-            if (existingProduct.getQuantidadeProduto() < 10) {
-                existingProduct.setQuantidadeProduto(existingProduct.getQuantidadeProduto() + 1);
-                salvarListaEmArquivo();
-                showNotification(message, true);
-                card.setVisible(false);
-                paneCard.setMouseTransparent(true);
-                isSelected = false;
-                return;
-            }
-            showNotification("Numero maximo do mesmo produto atingido", false);
-        } else {
-            if (produtosCarrinho.size() < 5){
-                produtosCarrinho.add(new ProdutoCart(product, 1));
-                salvarListaEmArquivo();
-                showNotification(message, true);
-                card.setVisible(false);
-                paneCard.setMouseTransparent(true);
-                isSelected = false;
-                return;
-            }
-            showNotification("O numero maximo de produtos no carrinho é 5", false);
+
+        if (existingProduct != null && existingProduct.getQuantidadeProduto() < 10) {
+            existingProduct.setQuantidadeProduto(existingProduct.getQuantidadeProduto() + 1);
+            itensCarrinhoDAO.update(existingProduct, IdUser.getIduser());
+            showNotification(message, true);
+            card.setVisible(false);
+            paneCard.setMouseTransparent(true);
+            isSelected = false;
+            return;
         }
-        salvarListaEmArquivo();
+
+        if (existingProduct != null) {
+            showNotification("Numero maximo do mesmo produto atingido", false);
+            return;
+        }
+
+        if (produtosCarrinho.size() < 5) {
+            ProdutoCart produtoCart = new ProdutoCart(product, 1);
+            produtosCarrinho.add(produtoCart);
+            itensCarrinhoDAO.save(produtoCart, IdUser.getIduser());
+            showNotification(message, true);
+            card.setVisible(false);
+            paneCard.setMouseTransparent(true);
+            isSelected = false;
+            return;
+        }
+
+        showNotification("O numero maximo de produtos no carrinho é 5", false);
     }
 
     private ProdutoCart findProductInCart(Produto product) {
+        produtosCarrinho = itensCarrinhoDAO.getAllProdutos(IdUser.getIduser());
         for (ProdutoCart item : produtosCarrinho) {
-            if (Objects.equals(item.getProduto().getId(), product.getId())) {
+            if (item.getProduto().getId() == product.getId()) {
                 return item;
             }
         }
@@ -706,53 +738,6 @@ public class MainClientController{
     private void displaySearchResults(List<Produto> searchResults) {
         container.getChildren().clear();
         searchResults.forEach(this::createProductCard);
-    }
-
-    private void navigateTo() {
-        try {
-            stage = (Stage) root.getScene().getWindow();
-
-            FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("loginScreen.fxml"));
-            Scene scene = new Scene(fxmlLoader.load());
-            scene.setOnMousePressed(event -> {
-                xOffset = event.getSceneX();
-                yOffset = event.getSceneY();
-            });
-
-            scene.setOnMouseDragged(event -> {
-                if (event.getSceneY() <= 100) {
-                    stage.setX(event.getScreenX() - xOffset);
-                    stage.setY(event.getScreenY() - yOffset);
-                }
-            });
-
-            if (stage != null) {
-                stage.setScene(scene);
-                stage.setResizable(false);
-                scene.setFill(Color.TRANSPARENT);
-                stage.initStyle(StageStyle.TRANSPARENT);
-                stage.show();
-            }
-        } catch (IllegalStateException ignore){}
-        catch (Exception e) {e.printStackTrace();}
-    }
-
-    private void salvarListaEmArquivo() {
-        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("produtosCarrinho.ser"))) {
-            out.writeObject(produtosCarrinho);
-            System.out.println("Lista de produtos salva com sucesso.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    @SuppressWarnings("unchecked")
-    private ArrayList<ProdutoCart> carregarListaDoArquivo() {
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("produtosCarrinho.ser"))) {
-            return (ArrayList<ProdutoCart>) in.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
     }
 
     private void configureTextFieldFormatter(TextField textField) {
