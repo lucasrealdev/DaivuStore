@@ -74,6 +74,8 @@ public class MainClientController{
     private FlowPane containerCheck;
     @FXML
     private AnchorPane ap;
+    @FXML
+    private Pane pix;
 
     private final ProdutoDAO productDAO = new ProdutoDAO();
     private final ClienteDAO clienteDAO = new ClienteDAO();
@@ -296,7 +298,14 @@ public class MainClientController{
 
         Platform.runLater(() -> containerCart.getChildren().add(root));
     }
-
+    @FXML
+    void checkoutClicked(MouseEvent event) {
+        pix.setVisible(true);
+    }
+    @FXML
+    void pixClicked(MouseEvent event) {
+        pix.setVisible(false);
+    }
     private void moreButton(ProdutoCart produtoCarrinho){
         if (produtoCarrinho.getQuantidadeProduto() < 10) {
             produtoCarrinho.setQuantidadeProduto(produtoCarrinho.getQuantidadeProduto() + 1);
