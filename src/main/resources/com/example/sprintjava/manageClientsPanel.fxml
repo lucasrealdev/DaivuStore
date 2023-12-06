@@ -21,7 +21,7 @@
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </padding>
       </ScrollPane>
-      <Label layoutX="225.0" layoutY="-7.0" style="-fx-font-weight: 700;" styleClass="text" stylesheets="@main.css" text="Manage Clients" textFill="#8bb57a">
+      <Label layoutX="225.0" layoutY="-7.0" style="-fx-font-weight: 700;" styleClass="text" stylesheets="@main.css" text="Gerenciar Clientes" textFill="#8bb57a">
          <font>
             <Font size="42.0" />
          </font>

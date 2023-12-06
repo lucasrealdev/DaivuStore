@@ -8,7 +8,7 @@
 
 <AnchorPane prefHeight="527.0" prefWidth="590.0" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.sprintjava.MainAdmController">
    <children>
-      <Label layoutX="106.0" layoutY="4.0" prefHeight="88.0" prefWidth="399.0" styleClass="text" stylesheets="@main.css" text="WELCOME TO" textFill="#7bac69">
+      <Label layoutX="106.0" layoutY="4.0" prefHeight="88.0" prefWidth="399.0" styleClass="text" stylesheets="@main.css" text="BEM VINDO A" textFill="#7bac69">
          <font>
             <Font size="57.5" />
          </font>
@@ -24,15 +24,15 @@
             <Cursor fx:constant="TEXT" />
          </cursor>
       </Label>
-      <Label alignment="CENTER" layoutX="1.0" layoutY="161.0" prefHeight="39.0" prefWidth="590.0" style="-fx-font-weight: 600;" styleClass="text" stylesheets="@main.css" text="Best perfume dealer in the world" textFill="#989a9e">
+      <Label alignment="CENTER" layoutX="1.0" layoutY="161.0" prefHeight="39.0" prefWidth="590.0" style="-fx-font-weight: 600;" styleClass="text" stylesheets="@main.css" text="MELHOR VENDEDORA DE PERFUME DA AMERICA" textFill="#989a9e">
          <font>
-            <Font size="27.0" />
+            <Font size="25.0" />
          </font>
          <cursor>
             <Cursor fx:constant="TEXT" />
          </cursor>
       </Label>
-      <Label layoutX="11.0" layoutY="203.0" prefHeight="149.0" prefWidth="568.0" style="-fx-font-weight: 800;" styleClass="text" stylesheets="@main.css" text="Our reseller has the best prices on the market, ensuring that you can indulge in your favorite scents without breaking the bank. We believe that luxury should be affordable, and we're here to make that a reality for you. Explore our collection today and experience the finest fragrances at unbeatable prices." textAlignment="CENTER" textFill="#b6b9be" wrapText="true">
+      <Label layoutX="11.0" layoutY="203.0" prefHeight="149.0" prefWidth="568.0" style="-fx-font-weight: 800;" styleClass="text" stylesheets="@main.css" text="Nosso revendedor tem os melhores preços do mercado, garantindo que você possa se deliciar com seus aromas favoritos sem gastar muito. Acreditamos que o luxo deve ser acessível e estamos aqui para tornar isso uma realidade para você. Explore nossa coleção hoje e experimente as melhores fragrâncias a preços imbatíveis." textAlignment="CENTER" textFill="#b6b9be" wrapText="true">
          <font>
             <Font size="16.0" />
          </font>
@@ -48,7 +48,7 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </Button>
-      <Label layoutX="258.0" layoutY="491.0" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" styleClass="text" stylesheets="@main.css" text="Web Store" textFill="WHITE">
+      <Label layoutX="258.0" layoutY="491.0" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" styleClass="text" stylesheets="@main.css" text="Loja Online" textFill="WHITE">
          <font>
             <Font size="15.5" />
          </font>

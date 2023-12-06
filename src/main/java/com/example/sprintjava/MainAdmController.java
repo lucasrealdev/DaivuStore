@@ -130,7 +130,7 @@ public class MainAdmController {
         String marca = tfMarcaP.getText();
         String precoStr = tfPrecoP.getText();
         String mlStr = tfQuantidadeP.getText();
-
+        System.out.println(descricao);
         if (descricao.isEmpty()) {
             showNotification("A descrição não pode estar em branco.", false);
             return;
@@ -197,9 +197,9 @@ public class MainAdmController {
         Produto novoProduto = new Produto(marca, descricao, mlStr, preco, link);
         int resultado = productDAO.save(novoProduto);
         if (resultado == 1){
-            clearProductFields();
             loadProductsCard();
             showNotification("Produto cadastrado com sucesso!", true);
+            clearProductFields();
         }
         else{
             showNotification("Produto nao foi cadastrado, erro no banco de dados!", false);
@@ -260,9 +260,9 @@ public class MainAdmController {
             String string = (cliente.isAdm() == 0) ? "user" : "admin";
             Label eAdmin = createLabel(string, 357, 30, "bold 15.5px sans-serif");
 
-            Button buttonAlter = createButton(650, 23, "Alter", "buttonSign");
+            Button buttonAlter = createButton(650, 23, "Alterar", "buttonSign");
 
-            Button buttonDelete = createButton(485, 24, "Delete", "buttonSign");
+            Button buttonDelete = createButton(485, 24, "Deletar", "buttonSign");
             buttonDelete.setStyle("-fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #AE2626 0%, rgba(241,24,24, 0.93) 100%); -fx-font: bold 16px sans-serif;");
 
             ImageView imgChave = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/imgs/chave.png"))));
@@ -290,11 +290,11 @@ public class MainAdmController {
     private String originEmail;
     private String originName;
     private void alterClient(TextField emailCliente, TextField nomeCliente, Button confirm, Button cancel, Long id){
-        if (confirm.getText().equalsIgnoreCase("Confirm")){
+        if (confirm.getText().equalsIgnoreCase("Confirmar")){
             Cliente cliente = clienteDAO.get(id);
             cliente.setId(id);
-            confirm.setText("Alter");
-            cancel.setText("Delete");
+            confirm.setText("Alterar");
+            cancel.setText("Deletar");
             nomeCliente.setEditable(false);
             emailCliente.setEditable(false);
             nomeCliente.setStyle(nomeCliente.getStyle().replace("blue", "black"));
@@ -341,8 +341,8 @@ public class MainAdmController {
         } else {
             originEmail = emailCliente.getText();
             originName = nomeCliente.getText();
-            confirm.setText("Confirm");
-            cancel.setText("Cancel");
+            confirm.setText("Confirmar");
+            cancel.setText("Cancelar");
             nomeCliente.setEditable(true);
             emailCliente.setEditable(true);
             nomeCliente.setStyle(nomeCliente.getStyle().replace("black", "blue"));
@@ -391,10 +391,10 @@ public class MainAdmController {
             Label mlLabel = createLabel(produto.getMl(), 73, 57, "bold 15.5px sans-serif");
             mlLabel.setTextFill(Color.web("#7bac69"));
 
-            Button alterButton = createButton(591, 31, "Alter", "buttonSign");
+            Button alterButton = createButton(591, 31, "Alterar", "buttonSign");
             alterButton.setOnMouseClicked(e -> alterClicked(produto));
 
-            Button deleteButton = createButton(431, 30, "Delete", "buttonSign");
+            Button deleteButton = createButton(431, 30, "Deletar", "buttonSign");
             deleteButton.setStyle("-fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #AE2626 0%, rgba(241,24,24, 0.93) 100%); -fx-font: bold 16px sans-serif;");
             deleteButton.setOnMouseClicked(event -> deleteProduct(produto));
 
@@ -414,7 +414,7 @@ public class MainAdmController {
 
     private void alterClicked(Produto produto){
         if (produto != null) {
-            labelProduct.setText(" Alter Product");
+            labelProduct.setText(" Alterar Produto");
             id = produto.getId();
             isAlterActive = true;
             tfDescricaoP.setText(produto.getDescricao());
@@ -461,7 +461,7 @@ public class MainAdmController {
     }
 
     private void deleteCliente(Cliente cliente, TextField emailCliente, TextField nomeCliente, Button cancel, Button confirm) {
-        if (cancel.getText().equalsIgnoreCase("Delete")){
+        if (cancel.getText().equalsIgnoreCase("Deletar")){
             if (cliente.isAdm() == 1) {
                 showNotification("Você não pode excluir um administrador do sistema!", false);
                 return;
@@ -474,8 +474,8 @@ public class MainAdmController {
                 showNotification("Cliente removido do sistema!", true);
             }
         } else{
-            confirm.setText("Alter");
-            cancel.setText("Delete");
+            confirm.setText("Alterar");
+            cancel.setText("Deletar");
             nomeCliente.setEditable(false);
             emailCliente.setEditable(false);
             nomeCliente.setText(originName);

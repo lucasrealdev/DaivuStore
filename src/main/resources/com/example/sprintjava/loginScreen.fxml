@@ -38,12 +38,12 @@
                 <Font size="14.0" />
             </font>
         </Label>
-        <Label layoutX="132.0" layoutY="273.0" styleClass="text" stylesheets="@main.css" text="Password">
+        <Label layoutX="132.0" layoutY="273.0" styleClass="text" stylesheets="@main.css" text="Senha">
             <font>
                 <Font size="14.0" />
             </font>
         </Label>
-        <Label layoutX="131.0" layoutY="95.0" styleClass="text" stylesheets="@main.css" text="Welcome to DAIVU">
+        <Label layoutX="131.0" layoutY="95.0" styleClass="text" stylesheets="@main.css" text="Bem Vindo a DAIVU">
             <font>
                 <Font size="26.0" />
             </font>
@@ -52,7 +52,7 @@
             <cursor>
                 <Cursor fx:constant="HAND" />
             </cursor></Label>
-        <Label layoutX="132.0" layoutY="133.0" styleClass="text" stylesheets="@main.css" text="Experience the new beauty in you!" textFill="#989a9e">
+        <Label layoutX="136.0" layoutY="133.0" styleClass="text" stylesheets="@main.css" text="Experiencie a nova beleza em você" textFill="#989a9e">
             <font>
                 <Font size="14.5" />
             </font>
@@ -64,7 +64,7 @@
             </cursor></Label>
         <Pane layoutX="500.0" prefHeight="600.0" prefWidth="501.0" style="-fx-background-color: #7BAC69;" styleClass="painel" stylesheets="@main.css">
             <children>
-                <Label id="#FFF" layoutX="252.0" layoutY="23.0" onMouseClicked="#aboutClicked" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" styleClass="text" stylesheets="@main.css" text="About" textFill="WHITE">
+                <Label id="#FFF" layoutX="252.0" layoutY="23.0" onMouseClicked="#aboutClicked" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" styleClass="text" stylesheets="@main.css" text="Sobre" textFill="WHITE">
                     <font>
                         <Font size="15.0" />
                     </font>
@@ -72,7 +72,7 @@
                         <Cursor fx:constant="HAND" />
                     </cursor>
                 </Label>
-                <Label id="#FFF" layoutX="155.0" layoutY="23.0" onMouseClicked="#storeClicked" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" styleClass="text" stylesheets="@main.css" text="Web Store" textFill="WHITE">
+                <Label id="#FFF" layoutX="155.0" layoutY="23.0" onMouseClicked="#storeClicked" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" styleClass="text" stylesheets="@main.css" text="Loja Online" textFill="WHITE">
                     <font>
                         <Font size="15.0" />
                     </font>
@@ -80,7 +80,7 @@
                         <Cursor fx:constant="HAND" />
                     </cursor>
                 </Label>
-                <Label id="#FFF" layoutX="42.0" layoutY="23.0" onMouseClicked="#productClicked" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" styleClass="text" stylesheets="@main.css" text="Our Product" textFill="WHITE">
+                <Label id="#FFF" layoutX="37.0" layoutY="23.0" onMouseClicked="#productClicked" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" styleClass="text" stylesheets="@main.css" text="Nosso Produto" textFill="WHITE">
                     <cursor>
                         <Cursor fx:constant="HAND" />
                     </cursor>
@@ -101,7 +101,7 @@
                       <Cursor fx:constant="HAND" />
                   </cursor>
             </Button>
-              <Label layoutX="348.0" layoutY="20.0" onMouseClicked="#changeToRegister" styleClass="text" stylesheets="@main.css" text="Sign up" textFill="#548a4e">
+              <Label layoutX="341.0" layoutY="20.0" onMouseClicked="#changeToRegister" styleClass="text" stylesheets="@main.css" text="Cadastrar" textFill="#548a4e">
                   <font>
                       <Font size="16.0" />
                   </font>
@@ -132,7 +132,7 @@
                 <Cursor fx:constant="HAND" />
             </cursor>
          <graphic>
-              <Label stylesheets="@main.css" text="Login with Google">
+              <Label stylesheets="@main.css" text="Entrar com o Google">
                   <font>
                       <Font size="14.0" />
                   </font>
@@ -155,7 +155,7 @@
                </graphic>
               </Label>
          </graphic></Button>
-        <Label layoutX="236.0" layoutY="427.0" onMouseClicked="#LoginClicked" onMouseEntered="#signUpButton" onMouseExited="#signUpButtonExited" styleClass="text" stylesheets="@main.css" text="Log in" textFill="WHITE">
+        <Label layoutX="236.0" layoutY="427.0" onMouseClicked="#LoginClicked" onMouseEntered="#signUpButton" onMouseExited="#signUpButtonExited" styleClass="text" stylesheets="@main.css" text="Entrar" textFill="WHITE">
             <font>
                 <Font size="15.5" />
             </font>
@@ -163,8 +163,8 @@
                 <Cursor fx:constant="HAND" />
             </cursor>
         </Label>
-        <CheckBox fx:id="rememberMe" contentDisplay="TOP" layoutX="131.0" layoutY="352.0" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-focus-traversable: false;" styleClass="text" stylesheets="@main.css" text="Remember me?" textFill="#989a9e" />
-        <Hyperlink fx:id="forgot" layoutX="279.0" layoutY="349.0" onMouseClicked="#forgotPassowordAction" text="Forgot Password ?" textFill="#989a9e" />
+        <CheckBox fx:id="rememberMe" contentDisplay="TOP" layoutX="131.0" layoutY="352.0" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-focus-traversable: false;" styleClass="text" stylesheets="@main.css" text="Lembrar Conta?" textFill="#989a9e" />
+        <Hyperlink fx:id="forgot" layoutX="279.0" layoutY="349.0" onMouseClicked="#forgotPassowordAction" text="Esqueceu a Senha?" textFill="#989a9e" />
       <Pane fx:id="popup_password" layoutX="350.0" layoutY="180.0" prefHeight="240.0" prefWidth="300.0" style="-fx-background-color: #253158; -fx-border-radius: 10px; -fx-background-radius: 10px;" visible="false">
          <children>
             <ImageView fitHeight="19.0" fitWidth="19.0" layoutX="267.0" layoutY="16.0" onMouseClicked="#closePopupPassword">

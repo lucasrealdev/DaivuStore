@@ -32,7 +32,7 @@
             <Font size="21.0" />
          </font>
       </Label>
-      <Label layoutX="131.0" layoutY="172.0" styleClass="text" stylesheets="@main.css" text="Username">
+      <Label layoutX="131.0" layoutY="172.0" styleClass="text" stylesheets="@main.css" text="Nome de Usuario">
          <font>
             <Font size="14.0" />
          </font>
@@ -42,12 +42,12 @@
             <Font size="14.0" />
          </font>
       </Label>
-      <Label layoutX="131.0" layoutY="326.0" styleClass="text" stylesheets="@main.css" text="Password">
+      <Label layoutX="131.0" layoutY="326.0" styleClass="text" stylesheets="@main.css" text="Senha">
          <font>
             <Font size="14.0" />
          </font>
       </Label>
-      <Label layoutX="130.0" layoutY="76.0" styleClass="text" stylesheets="@main.css" text="Welcome to DAIVU">
+      <Label layoutX="130.0" layoutY="76.0" styleClass="text" stylesheets="@main.css" text="Bem Vindo a DAIVU">
          <font>
             <Font size="26.0" />
          </font>
@@ -56,7 +56,7 @@
          <cursor>
             <Cursor fx:constant="HAND" />
          </cursor></Label>
-      <Label layoutX="131.0" layoutY="115.0" styleClass="text" stylesheets="@main.css" text="Experience the new beauty in you!" textFill="#989a9e">
+      <Label layoutX="131.0" layoutY="115.0" styleClass="text" stylesheets="@main.css" text="Experiencie a nova beleza em você" textFill="#989a9e">
          <font>
             <Font size="14.5" />
          </font>
@@ -76,7 +76,7 @@
             <Rectangle fx:id="rec1" arcHeight="20.0" arcWidth="20.0" fill="WHITE" height="16.0" layoutX="215.0" layoutY="553.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="36.0" />
             <Rectangle fx:id="rec2" arcHeight="20.0" arcWidth="20.0" fill="#c2c7cfb0" height="16.0" layoutX="255.0" layoutY="553.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="22.0" />
             <Rectangle fx:id="rec3" arcHeight="20.0" arcWidth="20.0" fill="#c2c7cfb0" height="16.0" layoutX="281.0" layoutY="553.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="22.0" />
-            <Label id="#FFF" layoutX="252.0" layoutY="23.0" onMouseClicked="#aboutClicked" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" styleClass="text" stylesheets="@main.css" text="About" textFill="WHITE">
+            <Label id="#FFF" layoutX="252.0" layoutY="23.0" onMouseClicked="#aboutClicked" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" styleClass="text" stylesheets="@main.css" text="Sobre" textFill="WHITE">
                <font>
                   <Font size="15.0" />
                </font>
@@ -84,7 +84,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Label>
-            <Label id="#FFF" layoutX="155.0" layoutY="23.0" onMouseClicked="#storeClicked" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" styleClass="text" stylesheets="@main.css" text="Web Store" textFill="WHITE">
+            <Label id="#FFF" layoutX="155.0" layoutY="23.0" onMouseClicked="#storeClicked" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" styleClass="text" stylesheets="@main.css" text="Loja Online" textFill="WHITE">
                <font>
                   <Font size="15.0" />
                </font>
@@ -92,7 +92,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Label>
-            <Label id="#FFF" layoutX="42.0" layoutY="23.0" onMouseClicked="#productClicked" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" styleClass="text" stylesheets="@main.css" text="Our Product" textFill="WHITE">
+            <Label id="#FFF" layoutX="37.0" layoutY="23.0" onMouseClicked="#productClicked" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" styleClass="text" stylesheets="@main.css" text="Nosso Produto" textFill="WHITE">
                <cursor>
                   <Cursor fx:constant="HAND" />
                </cursor>
@@ -105,7 +105,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
-            <Label layoutX="355.0" layoutY="20.0" onMouseClicked="#changeToLogin" styleClass="text" stylesheets="@main.css" text="log in" textFill="#548a4e">
+            <Label layoutX="355.0" layoutY="20.0" onMouseClicked="#changeToLogin" styleClass="text" stylesheets="@main.css" text="Entrar" textFill="#548a4e">
                <font>
                   <Font size="16.0" />
                </font>
@@ -136,7 +136,7 @@
             <Cursor fx:constant="HAND" />
          </cursor>
          <graphic>
-            <Label stylesheets="@main.css" text="Register with Google">
+            <Label stylesheets="@main.css" text="Cadastrar com Google">
                <font>
                   <Font size="14.0" />
                </font>
@@ -159,7 +159,7 @@
                </graphic>
             </Label>
          </graphic></Button>
-      <Label layoutX="230.0" layoutY="428.0" onMouseClicked="#RegisterClicked" onMouseEntered="#signUpButton" onMouseExited="#signUpButtonExited" styleClass="text" stylesheets="@main.css" text="Sign Up" textFill="WHITE">
+      <Label layoutX="224.0" layoutY="428.0" onMouseClicked="#RegisterClicked" onMouseEntered="#signUpButton" onMouseExited="#signUpButtonExited" styleClass="text" stylesheets="@main.css" text="Cadastrar" textFill="WHITE">
          <font>
             <Font size="15.5" />
          </font>
