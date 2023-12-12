@@ -304,10 +304,10 @@ public class HelloController implements Serializable{
                 registrationResult.complete(false);
             } else {
                 int insercaoSucesso = clienteDAO.save(new Cliente(nomeDeUsuario, email, senha));
-                String notificationMessage = (insercaoSucesso == 1 && !isGoogle) ? "Cadastro bem-sucedido" : "Erro ao cadastrar o cliente";
-                showNotification(notificationMessage, insercaoSucesso == 1 && !isGoogle);
+                String notificationMessage = (insercaoSucesso == 1) ? "Cadastro bem-sucedido" : "Erro ao cadastrar o cliente";
+                showNotification(notificationMessage, insercaoSucesso == 1);
                 load(stage, fxmlLoaderL);
-                registrationResult.complete(insercaoSucesso == 1 && !isGoogle);
+                registrationResult.complete(insercaoSucesso == 1);
                 navigationDone.set(true);
             }
         }
